@@ -36,7 +36,7 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
     return;
   }
 
-  $sql = "SELECT * FROM {file_managed}";
+  $sql = "SELECT * FROM {file_managed} WHERE uri LIKE '%public'";
   $results = db_select('file_managed')->fields('file_managed', array())->execute();
   $rows = $results->fetchAll();
 
