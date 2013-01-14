@@ -36,8 +36,10 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
     return;
   }
 
-  $sql = "SELECT * FROM {file_managed} WHERE uri LIKE '%public'";
-  $results = db_select('file_managed')->fields('file_managed', array())->execute();
+  $results = db_select('file_managed')
+    ->fields('file_managed', array())
+    ->condition('uri', 'public://%', 'LIKE')
+    ->execute();
   $rows = $results->fetchAll();
 
   foreach ($rows AS $key => $row) {
@@ -48,7 +50,9 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
       $count++;
 
       $fetch_url = $prod_base . '/' . $url;
-      $directory = str_replace($row->filename, '', $url);
+      $file_path = explode('/', $url);
+      array_pop($file_path);
+      $directory = implode('/', $file_path);
 
       $request = drupal_http_request($fetch_url);
       if ($request->code == '200') {
