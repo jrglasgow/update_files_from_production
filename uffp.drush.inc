@@ -45,8 +45,10 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
   foreach ($rows AS $key => $row) {
     $url = file_create_url($row->uri);
     $url = str_replace($GLOBALS['base_url'] . '/', '', $url);
-
-    if (!file_exists($url) && strpos($row->filemime, 'image') !== FALSE) {
+    if (file_exists($url)) {
+      drush_log(dt('The file at !url already exists.', array('!url' => $url)), 'success');
+    }
+    else if (strpos($row->filemime, 'image') !== FALSE) {
       $count++;
 
       $fetch_url = $prod_base . '/' . $url;
@@ -60,14 +62,14 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
         // we have good data and it needs to be saved
         file_put_contents($url, $request->data);
         if (file_exists($url)) {
-          drush_print(dt('The file at !fetch_url was fetched.', array('!fetch_url' => $fetch_url)));
+          drush_log(dt('The file at !fetch_url was fetched.', array('!fetch_url' => $fetch_url)), 'success');
         }
         else {
-          drush_print(dt('There was an error writing the files to !url', array('!url' => $url)));
+          drush_log(dt('There was an error writing the files to !url', array('!url' => $url)), 'error');
         }
       }
       else {
-        drush_print(dt('The file at !fetch_url could not be fetched.', array('!fetch_url' => $fetch_url)));
+        drush_log(dt('The file at !fetch_url could not be fetched.', array('!fetch_url' => $fetch_url)), 'error');
       }
     }
   }
