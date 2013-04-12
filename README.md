@@ -1,7 +1,7 @@
 update_files_from_production
 ============================
 
-Drush utility to fetch all Drupal managed files from a production server into the local install
+Drush utility to fetch all Drupal managed public files from a production server into the local install
 
 put this repositiory in ~/.drush
 
