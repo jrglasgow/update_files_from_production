@@ -46,7 +46,7 @@ function drush_uffp_update_files_from_prod($prod_base = '') {
     $url = file_create_url($row->uri);
     $url = str_replace($GLOBALS['base_url'] . '/', '', $url);
     if (file_exists($url)) {
-      drush_log(dt('The file at !url already exists.', array('!url' => $url)), 'success');
+      drush_log(dt('The file at !url already exists.', array('!url' => $url)), 'ok');
     }
     else if (strpos($row->filemime, 'image') !== FALSE) {
       $count++;
