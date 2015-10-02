@@ -17,7 +17,7 @@ function uffp_drush_command() {
   $items['update-files-from-prod'] = array(
     'description' => 'Download any missing images (or specified file type) from the production server',
     'arguments' => array(
-      'production server base url'  => 'The base path of the production server:  or http://example.com/drupal',
+      'production server base url'  => 'The base path of the production server:  or http://example.com/drupal. You can also have the variable "stage_file_proxy_origin" set to bypass this requirement, see https://www.drupal.org/project/stage_file_proxy .',
     ),
     'options' => array(
       'type'    => 'Only fetch file of the same type',
@@ -37,9 +37,14 @@ function uffp_drush_command() {
 }
 
 function drush_uffp_update_files_from_prod($prod_base = '') {
+  $stage_file_proxy_origin = variable_get('stage_file_proxy_origin', FALSE);
   if (empty($prod_base)) {
-    drush_print(dt('A base URL is required', array()));
-    return;
+    if (!$stage_file_proxy_origin) {
+      drush_print(dt('A base URL is required', array()));
+      return;
+    }
+    $prod_base = $stage_file_proxy_origin;
+    drush_print(dt('Using stage_file_proxy_origin setting of "@prod_base".', array('@prod_base' => $prod_base)));
   }
 
   $fid = drush_get_option('fid');
@@ -117,7 +122,7 @@ function uffp_fetch_file($file, $total, $prod_base = '') {
     array_pop($file_path);
     $directory = implode('/', $file_path);
     drush_log(dt('The file at "!fetch_url" will be fetched.', array('!fetch_url' => $fetch_url)));
-    $request = drupal_http_request($fetch_url);
+    $request = drupal_http_request($fetch_url, array('timeout' => 100));
     if ($request->code == '200') {
       file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
       // we have good data and it needs to be saved
